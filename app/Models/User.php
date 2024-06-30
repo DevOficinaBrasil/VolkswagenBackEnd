@@ -50,7 +50,7 @@ class User extends Authenticatable
     public function trainings()
     {
         return $this->belongsToMany(Training::class, 'concessionaire_training_user', 'common_user_id', 'trainings_id')
-            ->withPivot('concessionaire_id');
+            ->withPivot('concessionaire_id', 'presence');
     }
 
     public function concessionaire()

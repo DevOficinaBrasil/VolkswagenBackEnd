@@ -5,6 +5,7 @@ namespace App\Handlers;
 use Illuminate\Http\Request;
 use App\Services\AccessService;
 use App\Traits\NormalizeRequest;
+use Exception;
 
 class AutoRepairHandler extends AbstractHandler
 {
@@ -28,7 +29,7 @@ class AutoRepairHandler extends AbstractHandler
         $verify = $service->link_AutoRepair_User($normalizedRequest, $userID, $autoRepair);
 
         if (!$verify['status']) {
-            return response()->json($verify['message'], 400);
+            throw new Exception($verify['message']);
         }
     }
 }

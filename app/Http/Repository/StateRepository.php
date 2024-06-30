@@ -10,6 +10,13 @@ class StateRepository implements AddressRepositoryInterface
     public function __construct(
         protected State $model
     ){}
+    
+    public function getAddress($id)
+    {
+        // $data = $this->model->where('id', $id)->get()->first();
+
+        // return $data;
+    }
 
     public function search($attr, $term)
     {

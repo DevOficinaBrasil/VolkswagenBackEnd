@@ -4,6 +4,7 @@ namespace App\Handlers;
 
 use Illuminate\Http\Request;
 use App\Services\AccessService;
+use Exception;
 
 class AccessHandler extends AbstractHandler
 {
@@ -12,7 +13,7 @@ class AccessHandler extends AbstractHandler
         $user = $this->createOrUpdateUser($request, $context['situation'], $context['addressId'], $context['singlePassId'], $service);
 
         if(!$user['status']){
-            return response()->json($user['message'], 500);
+            throw new Exception($user['message']);
         }
 
         $context['userId'] = $user['iD'];

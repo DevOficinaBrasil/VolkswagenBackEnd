@@ -28,13 +28,21 @@ Route::post('/getByCpf', [UserLegacyController::class, 'search']);
 
 Route::post('/sendMail', [UserService::class, 'teste']);
 
-Route::middleware(JwtMiddleware::class)->group(function () {
+Route::get('/getAllUserInfo/{id}', [UserController::class, 'getAllUserInfo']);
+
+Route::post('/updateUser', [UserController::class, 'update']);
+Route::post('/updateAddress', [UserController::class, 'updateUserAddress']);
+Route::post('/getConcessionaireOnlyByAddress', [ConcessionaireControler::class, 'getConcessionaireOnlyByAddress']);
+Route::post('/getTrainingByConcessionaireId', [TrainingController::class, 'getTrainingByConcessionaireId']);
+// Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getConcessionaireByAddress']);
+Route::apiResource('training', TrainingController::class);
+Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
+
+Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('users', UserController::class);
     Route::apiResource('managers', ManagerController::class);
-    Route::apiResource('training', TrainingController::class);
     
     Route::get('/trainings/{id}', [TrainingController::class, 'exib']);
-    Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
 
     Route::prefix('admin')->group(function () {
         Route::apiResource('/trainings', AdminController::class);
@@ -44,5 +52,6 @@ Route::middleware(JwtMiddleware::class)->group(function () {
     Route::prefix('manager')->group(function () {
         Route::get('/trainings/{concessionaireId}', [ConcessionaireAreaController::class, 'getTrainings']);
         Route::get('/users', [ConcessionaireAreaController::class, 'getUserOnTraining']);
+        Route::patch('/updatePresence', [ConcessionaireAreaController::class, 'updatePresence']);
     });
 });

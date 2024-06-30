@@ -16,6 +16,7 @@ use App\Handlers\ValidateUserHandler;
 use App\Handlers\ValidateSituationHandler;
 use App\Traits\GenerateParamsNotification;
 use App\Handlers\ValidateAutoRepairHandler;
+use Illuminate\Support\Facades\DB;
 
 class AccessController extends Controller
 {
@@ -56,20 +57,29 @@ class AccessController extends Controller
     {
         $context = [];
 
-        $response = $this->handler->handle($request, $this->service, $context);
+        DB::beginTransaction();
 
-        if($response){
-            return $response;
+        try{
+            $this->handler->handle($request, $this->service, $context);
+            
+            $params = $this->registerUser($request);
+    
+            SendNotificationEvent::dispatch($request->email, $params);
+
+            DB::commit();
+    
+            return response()->json([
+                'token'   => $context['singlePassToken'],
+                'user_id' => $context['singlePassId'],
+                'idUser' => $context['userId'],
+                'message' => 'Usuário cadastrado com sucesso',
+            ], 201);
+        }catch(\Exception $error){
+            DB::rollBack();
+
+            return response()->json([
+                'message' => $error->getMessage()
+            ], 500);
         }
-        
-        $params = $this->registerUser($request);
-
-        SendNotificationEvent::dispatch($request->email, $params);
-
-        return response()->json([
-            'token'   => $context['singlePassToken'],
-            'user_id' => $context['singlePassId'],
-            'message' => 'Usuário cadastrado com sucesso',
-        ], 201);
     }
 }

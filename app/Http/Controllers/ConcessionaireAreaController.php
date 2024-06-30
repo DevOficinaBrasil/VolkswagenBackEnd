@@ -26,4 +26,13 @@ class ConcessionaireAreaController extends Controller
 
         return response()->json($response);
     }
+
+    public function updatePresence(Request $request)
+    {
+        $parameters = $request->all();
+
+        $response = $this->service->updatePresence($parameters['trainingId'], $parameters['userId'], $parameters['concessionaireId']);
+
+        return response()->json($response['message'], $response['status']);
+    }
 }

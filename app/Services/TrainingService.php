@@ -14,6 +14,16 @@ class TrainingService
         protected TrainingRepository $trainingRepo,
     ){}
 
+    public function getTraining(string $id)
+    {
+        $data = $this->trainingRepo->unique($id);
+
+        return [
+            'data'   => $data,
+            'status' => 200,
+        ];;
+    }
+
     public function getTrainings()
     {
         $data = $this->trainingRepo->all();

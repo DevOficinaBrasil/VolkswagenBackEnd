@@ -24,6 +24,21 @@ class AutoRepairRepository implements AutoRepairRepositoryInterface
         return $data->first();
     }
 
+    public function getInfosAutoRepairByID($id)
+    {
+        $dataLink = $this->modelLink->where('common_user', $id)->get();
+        if($dataLink->isEmpty()){
+            return false;
+        }
+        $data = $this->model->where('id', $dataLink->auto_repair_id)->get();
+
+        if($data->isEmpty()){
+            return false;
+        }
+
+        return $data->first();
+    }
+
     public function create($auto_repair_DATA, $address_ID)
     {
         $record = $this->model->create([

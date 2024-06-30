@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Services\AccessService;
 use App\Strategy\AutoRepairValidation;
 use App\Strategy\AutoRepairExistValidation;
+use Exception;
 
 class ValidateAutoRepairHandler extends AbstractHandler
 {
@@ -15,7 +16,7 @@ class ValidateAutoRepairHandler extends AbstractHandler
             $validationResult = $this->validateAutoRepair($request, $service);
 
             if (!$validationResult['status']) {
-                return response()->json($validationResult['message'], 400);
+                throw new Exception($validationResult['message']);
             }
         }
 

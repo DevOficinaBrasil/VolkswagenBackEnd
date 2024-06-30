@@ -44,7 +44,5 @@ class RdStationService
         $this->getToken();
         
         $response = Http::withToken($this->token)->patch("{$this->url}{$endpoint}/email:{$options}", $this->params);
-
-        dd($this->params);
     }
 }

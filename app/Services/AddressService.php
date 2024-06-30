@@ -17,6 +17,13 @@ class AddressService
         return $record;
     }
 
+    public function getAddress($id)
+    {
+        $address = $this->AddressRepository->getAddress($id);
+
+        return $address;
+    }
+
     public function ifExistCity($city, $state_ID)
     {
         $record = $this->CityRepository->existOrCreate($city, $state_ID);

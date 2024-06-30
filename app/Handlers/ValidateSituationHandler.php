@@ -5,6 +5,7 @@ namespace App\Handlers;
 use App\Handlers\AbstractHandler;
 use Illuminate\Http\Request;
 use App\Services\AccessService;
+use Exception;
 
 class ValidateSituationHandler extends AbstractHandler
 {
@@ -20,7 +21,7 @@ class ValidateSituationHandler extends AbstractHandler
                 $return = false;
                 break;
             case 2:
-                return response()->json('Usuário já Cadastrado!', 400);
+                throw new Exception('Usuário já cadastrado!');
                 break;
         }
 

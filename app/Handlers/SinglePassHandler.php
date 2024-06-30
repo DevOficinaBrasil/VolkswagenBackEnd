@@ -4,6 +4,7 @@ namespace App\Handlers;
 
 use Illuminate\Http\Request;
 use App\Services\AccessService;
+use Exception;
 
 class SinglePassHandler extends AbstractHandler
 {
@@ -12,7 +13,7 @@ class SinglePassHandler extends AbstractHandler
         $singlePassID = $service->singePassRequest($request);
 
         if (!$singlePassID['status']) {
-            return response()->json($singlePassID['message'], 400);
+            throw new Exception($singlePassID['message']);
         }
 
         $context['singlePassId'] = $singlePassID['iD'];

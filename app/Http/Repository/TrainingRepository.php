@@ -16,6 +16,13 @@ class TrainingRepository
         protected TrainingUser $modelFK
     ){}
 
+    public function unique(string $id)
+    {
+        $data = $this->model->find($id);
+
+        return $data;  
+    }
+
     public function all()
     {
         $data = $this->model->all();
@@ -28,6 +35,7 @@ class TrainingRepository
         $data = $this->model->with(['concessionaire' => function ($query) use ($id) {
             $query->where('concessionaire_id', $id);
         }])
+        ->orderByDesc('active')
         ->get();
 
         return $data;

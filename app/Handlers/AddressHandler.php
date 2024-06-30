@@ -5,6 +5,7 @@ namespace App\Handlers;
 
 use Illuminate\Http\Request;
 use App\Services\AccessService;
+use Exception;
 
 class AddressHandler extends AbstractHandler
 {
@@ -13,7 +14,7 @@ class AddressHandler extends AbstractHandler
         $address_ID = $service->createAddress($request);
 
         if (!$address_ID['status']) {
-            return response()->json($address_ID['message'], 400);
+            throw new Exception($address_ID['message']);
         }
 
         $context['addressId'] = $address_ID['iD'];
