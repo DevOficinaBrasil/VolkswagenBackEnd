@@ -15,11 +15,7 @@ class SheetsService
     {
         $data = $this->sheetsRepository->create($request);
 
-        if($data){
-            return true;
-        }
-
-        return false;
+        return $data;
     }
 
     public function find(Request $request)

@@ -18,7 +18,7 @@ class SheetsController extends Controller
     {
         $data = $this->service->save($request);
 
-        if($data){
+        if($data->exists){
             return response()->json('Respostas salvas!', 200);
         }
 
