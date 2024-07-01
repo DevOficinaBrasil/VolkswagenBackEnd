@@ -71,6 +71,7 @@ class AccessController extends Controller
             return response()->json([
                 'token'   => $context['singlePassToken'],
                 'user_id' => $context['singlePassId'],
+                'idUser' => $context['userId'],
                 'message' => 'Usuário cadastrado com sucesso',
             ], 201);
         }catch(\Exception $error){

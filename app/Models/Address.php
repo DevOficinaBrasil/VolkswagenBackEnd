@@ -23,4 +23,9 @@ class Address extends Model
     {
         return $this->belongsTo(City::class, 'city_id');
     }
+
+    public function concessionaires()
+    {
+        return $this->hasMany(Concessionaire::class, 'concessionaire_address');
+    }
 }

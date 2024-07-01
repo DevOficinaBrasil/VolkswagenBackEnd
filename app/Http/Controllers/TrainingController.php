@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Events\SendNotificationEvent;
 use App\Services\ConcessionaireService;
+use App\Models\Concessionaire;
+use App\Models\TrainingUser;
 use Illuminate\Http\Request;
 use App\Services\TrainingService;
 use App\Services\UserService;
@@ -76,6 +78,51 @@ class TrainingController extends Controller
         $training = $this->service->getTraining($id);
 
         return $this->response($training);
+    }
+    public function getTrainingByConcessionaireId(Request $request)
+    {
+        $body = $request->all();
+        error_log($request->concessionaireID);
+        $data = Concessionaire::where('id', $request->concessionaireID)
+          ->with('trainingVacancies')
+          ->get();
+    
+    
+    
+        // return response()->json($data, 200);
+    
+        if ($data->isNotEmpty()) {
+          foreach ($data as $unique) {
+            
+
+            foreach ($unique->trainingVacancies as $training) {
+                $count = TrainingUser::where('concessionaire_id', $request->concessionaireID)
+              ->where('trainings_id', $training->id)->count();
+
+              $training['vacanciesLeft'] =  $training->pivot->vacancies - $count;
+            } 
+              
+            // return response()->json([
+            //   'data'   => $unique->trainingVacancies,
+            //   'status' => 200,
+            // ]);
+    
+            // $vacancies = $unique->trainingVacancies[0]->pivot->vacancies - $count;
+    
+            // $unique->vacancies = $vacancies;
+          }
+          return response()->json([
+            'data'   => $data,
+            'status' => 200,
+          ]);
+        }
+    
+    
+    
+        return response()->json([
+          'data'   => 'Nenhuma concessionaria encontrado',
+          'status' => 404
+        ]);
     }
 
     /**

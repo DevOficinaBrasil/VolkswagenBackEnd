@@ -11,6 +11,13 @@ class CityRepository implements AddressRepositoryInterface
         protected City $model
     ){}
 
+    public function getAddress($id)
+    {
+        // $data = $this->model->where('id', $id)->get()->first();
+
+        // return $data;
+    }
+
     public function search($attr, $term)
     {
         $response = $this->model->where($attr, $term)->first();

@@ -17,4 +17,14 @@ class UserService
 
         return $data;
     }
+
+    
+    public function updateUser(Request $data)
+    {
+        $userData = $this->userRepo->update($data);
+
+        
+        return $userData;
+
+    }
 }

@@ -7,7 +7,6 @@ use App\Http\Controllers\ConcessionaireAreaController;
 use App\Http\Controllers\ConcessionaireControler;
 use App\Http\Controllers\ConcessionaireResourceController;
 use App\Http\Controllers\ManagerController;
-use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserLegacyController;
@@ -29,16 +28,21 @@ Route::post('/getByCpf', [UserLegacyController::class, 'search']);
 
 Route::post('/sendMail', [UserService::class, 'teste']);
 
-Route::middleware(JwtMiddleware::class)->group(function () {
+Route::get('/getAllUserInfo/{id}', [UserController::class, 'getAllUserInfo']);
+
+Route::post('/updateUser', [UserController::class, 'update']);
+Route::post('/updateAddress', [UserController::class, 'updateUserAddress']);
+Route::post('/getConcessionaireOnlyByAddress', [ConcessionaireControler::class, 'getConcessionaireOnlyByAddress']);
+Route::post('/getTrainingByConcessionaireId', [TrainingController::class, 'getTrainingByConcessionaireId']);
+// Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getConcessionaireByAddress']);
+Route::apiResource('training', TrainingController::class);
+Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
+
+Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('users', UserController::class);
     Route::apiResource('managers', ManagerController::class);
-    Route::apiResource('training', TrainingController::class);
     
     Route::get('/trainings/{id}', [TrainingController::class, 'exib']);
-    Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
-
-    Route::post('/registerSheet', [SheetsController::class, 'store']);
-    Route::post('/verify/sheet', [SheetsController::class, 'store']);
 
     Route::prefix('admin')->group(function () {
         Route::apiResource('/trainings', AdminController::class);

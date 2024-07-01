@@ -34,8 +34,10 @@ class UserRepository implements UserRepositoryInterface
         return $record;
     }
 
-    public function update($user_DATA, $login_ID, $addres_ID)
+    public function update($user_DATA)
     {
+        // error_log($user_DATA);
+
         $record = $this->model->where('document', $user_DATA->document)
             ->update([
                 'name'                => $user_DATA->name,
@@ -44,14 +46,12 @@ class UserRepository implements UserRepositoryInterface
                 'gender'              => $user_DATA->gender,
                 'born_at'             => $user_DATA->born_at,
                 'document'            => $user_DATA->document,
-                'user_login_id'       => $login_ID,
-                'common_user_address' => $addres_ID,
             ]
         );
 
-        $id = $this->model->where('document', $user_DATA->document)->get()->first();
+        // $id = $this->model->where('document', $user_DATA->document)->get()->first();
         
-        return $id;
+        return $record;
     }
 
     public function search($search, $argument)
