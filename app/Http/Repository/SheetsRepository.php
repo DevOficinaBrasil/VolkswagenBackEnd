@@ -13,16 +13,19 @@ class SheetsRepository
         protected Sheets $model
     ){}
 
-    public function create(Request $request, $answers)
+    public function create(Request $request)
     {
         DB::beginTransaction();
 
         try{
-            $data = $this->model->create([
-                'common_user_id' => $request->user,
-                'trainings_id'   => $request->training,
-                'answers'        => $answers,
-                'format'         => $request->user,
+            $this->model->create([
+                'common_user_id'       => $request->user,
+                'trainings_id'         => $request->training,
+                'avalie'               => $request->rating,
+                'DuvidasChatPresencial'=> $request->quest2,
+                'ExperienciaRetorno'   => $request->quest1,
+                'HorarioPrefere'       => $request->quest3,
+                'QuaisTemas'           => $request->suggestion,
             ]);
 
             DB::commit();
