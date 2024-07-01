@@ -9,6 +9,7 @@ use App\Http\Controllers\ConcessionaireResourceController;
 use App\Http\Controllers\ManagerController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\UserLegacyController;
 use App\Http\Middleware\ConvertBooleans;
 use App\Http\Middleware\JwtMiddleware;
@@ -43,6 +44,9 @@ Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('managers', ManagerController::class);
     
     Route::get('/trainings/{id}', [TrainingController::class, 'exib']);
+
+    Route::post('/registerSheet', [SheetsController::class, 'store']);
+    Route::post('/verify/sheet', [SheetsController::class, 'store']);
 
     Route::prefix('admin')->group(function () {
         Route::apiResource('/trainings', AdminController::class);
