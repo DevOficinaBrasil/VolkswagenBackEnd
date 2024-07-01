@@ -16,25 +16,25 @@ class SheetsRepository
     public function create(Request $request)
     {
         DB::beginTransaction();
-
+        
         try{
-            $this->model->create([
-                'common_user_id'       => $request->user,
-                'trainings_id'         => $request->training,
-                'avalie'               => $request->rating,
-                'DuvidasChatPresencial'=> $request->quest2,
-                'ExperienciaRetorno'   => $request->quest1,
-                'HorarioPrefere'       => $request->quest3,
-                'QuaisTemas'           => $request->suggestion,
+            $data = $this->model->create([
+                'common_user_id'        => $request->user,
+                'trainings_id'          => $request->training,
+                'Avalie'                => $request->rating,
+                'DuvidasChatPresencial' => $request->quest2,
+                'ExperienciaRetorno'    => $request->quest1,
+                'HorarioPrefere'        => $request->quest3,
+                'QuaisTemas'            => $request->suggestion,
             ]);
 
             DB::commit();
 
-            return true;
+            return $data;
         }catch(QueryException $error){
             DB::rollBack();
 
-            return false;
+            return $error;
         }
     }
 
