@@ -16,7 +16,10 @@ class Sheets extends Authenticatable
     protected $fillable = [
         'common_user_id',
         'trainings_id',
-        'answers',
-        'format',
+        'avalie',
+        'DuvidasChatPresencial',
+        'ExperienciaRetorno',
+        'HorarioPrefere',
+        'QuaisTemas',
     ];
 }

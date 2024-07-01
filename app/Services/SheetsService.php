@@ -13,9 +13,7 @@ class SheetsService
     
     public function save(Request $request)
     {
-        $answers = `{$request->rating};{$request->quest1};{$request->quest2};{$request->quest3};{$request->suggestion}`;
-
-        $data = $this->sheetsRepository->create($request, $answers);
+        $data = $this->sheetsRepository->create($request);
 
         if($data){
             return true;
