@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Events\SendNotificationEvent;
+use App\Models\CommonUserLog;
 use App\Services\ConcessionaireService;
 use App\Models\Concessionaire;
+use App\Models\Training;
 use App\Models\TrainingUser;
 use Illuminate\Http\Request;
 use App\Services\TrainingService;
 use App\Services\UserService;
 use App\Traits\GenerateParamsNotification;
 use App\Traits\Response;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class TrainingController extends Controller
 {
@@ -20,7 +24,8 @@ class TrainingController extends Controller
         protected TrainingService $service,
         protected UserService $userService,
         protected ConcessionaireService $concessionaireService,
-    ){}
+    ) {
+    }
 
     /**
      * Display a listing of the resource.
@@ -38,9 +43,9 @@ class TrainingController extends Controller
     public function exib(string $id)
     {
         $userId = $this->userService->allInfos($id);
-        
+
         $data = $this->service->getAllTrainingsById($userId->id);
-        
+
         return $this->response($data);
     }
 
@@ -84,45 +89,133 @@ class TrainingController extends Controller
         $body = $request->all();
         error_log($request->concessionaireID);
         $data = Concessionaire::where('id', $request->concessionaireID)
-          ->with('trainingVacancies')
-          ->get();
-    
-    
-    
+            ->with('trainingVacancies')
+            ->get();
+
+
+
         // return response()->json($data, 200);
-    
+
         if ($data->isNotEmpty()) {
-          foreach ($data as $unique) {
-            
+            foreach ($data as $unique) {
 
-            foreach ($unique->trainingVacancies as $training) {
-                $count = TrainingUser::where('concessionaire_id', $request->concessionaireID)
-              ->where('trainings_id', $training->id)->count();
 
-              $training['vacanciesLeft'] =  $training->pivot->vacancies - $count;
-            } 
-              
-            // return response()->json([
-            //   'data'   => $unique->trainingVacancies,
-            //   'status' => 200,
-            // ]);
-    
-            // $vacancies = $unique->trainingVacancies[0]->pivot->vacancies - $count;
-    
-            // $unique->vacancies = $vacancies;
-          }
-          return response()->json([
-            'data'   => $data,
-            'status' => 200,
-          ]);
+                foreach ($unique->trainingVacancies as $training) {
+                    $count = TrainingUser::where('concessionaire_id', $request->concessionaireID)
+                        ->where('trainings_id', $training->id)->count();
+
+                    $training['vacanciesLeft'] =  $training->pivot->vacancies - $count;
+                }
+
+                // return response()->json([
+                //   'data'   => $unique->trainingVacancies,
+                //   'status' => 200,
+                // ]);
+
+                // $vacancies = $unique->trainingVacancies[0]->pivot->vacancies - $count;
+
+                // $unique->vacancies = $vacancies;
+            }
+            return response()->json([
+                'data'   => $data,
+                'status' => 200,
+            ]);
         }
-    
-    
-    
+
+
+
         return response()->json([
-          'data'   => 'Nenhuma concessionaria encontrado',
-          'status' => 404
+            'data'   => 'Nenhuma concessionaria encontrado',
+            'status' => 404
         ]);
+    }
+    public function getTrainingPresence(Request $request)
+    {
+
+        $usuarioID = $request->input('userID');
+
+        try {
+
+            $result = DB::table('trainings as a')
+            ->selectRaw('
+                a.*, 
+                MAX(CASE WHEN b.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS PreencheuFicha,
+                MAX(CASE WHEN c.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS Inscrito,
+                MAX(CASE WHEN d.TreinamentoParticipou IS NOT NULL THEN 1 ELSE 0 END) AS TreinamentoParticipou
+            ')
+            ->leftJoin('general_sheet as b', function ($join) use ($usuarioID) {
+                $join->on('b.trainings_id', '=', 'a.id')
+                    ->where('b.common_user_id', '=', $usuarioID);
+            })
+            ->leftJoin('concessionaire_training_user as c', function ($join) use ($usuarioID) {
+                $join->on('c.trainings_id', '=', 'a.id')
+                    ->where('c.common_user_id', '=', $usuarioID);
+            })
+            ->leftJoin('common_user_log as d', function ($join) {
+                $join->on('d.Treinamento', '=', 'c.trainings_id');
+            })
+            ->groupBy('a.id')
+            ->get();
+
+        return response()->json($result);
+
+            return response()->json([
+                'data'   => $result,
+                'status' => 200
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+    public function putTrainingPresence(Request $request)
+    {
+
+        $usuarioID = $request->input('userID');
+        // $data = [];
+
+        try {
+
+
+            // Se não existe, cria um novo registro
+            CommonUserLog::create([
+                "CadastroID" => $request->input('userID'),
+                "Treinamento" => $request->input('trainingID'),
+                "TreinamentoParticipou" => "S",
+                "Participou" => "O",
+            ]);
+
+
+            return response()->json([
+                'data'   => 'Presença realizada',
+                'status' => 200
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+    public function setTraininOnLive(Request $request)
+    {
+
+        // $usuarioID = $request->input('userID');
+        // $data = [];
+
+        try {
+
+
+            // Se não existe, cria um novo registro
+            Training::where('id', $request->input('trainingId'))->update([
+                "on_live" => $request->input('onLive'),
+
+            ]); 
+
+
+            return response()->json([
+                'data'   => 'Mudança feita da live...',
+                'status' => 200
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**

@@ -35,9 +35,12 @@ Route::post('/updateUser', [UserController::class, 'update']);
 Route::post('/updateAddress', [UserController::class, 'updateUserAddress']);
 Route::post('/getConcessionaireOnlyByAddress', [ConcessionaireControler::class, 'getConcessionaireOnlyByAddress']);
 Route::post('/getTrainingByConcessionaireId', [TrainingController::class, 'getTrainingByConcessionaireId']);
+Route::post('/getTrainingPresence', [TrainingController::class, 'getTrainingPresence']);
 // Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getConcessionaireByAddress']);
 Route::apiResource('training', TrainingController::class);
 Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
+Route::post('/putTrainingPresence', [TrainingController::class, 'putTrainingPresence']);
+Route::post('/setTraininOnLive', [TrainingController::class, 'setTraininOnLive']);
 
 Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('users', UserController::class);
