@@ -19,6 +19,10 @@ class Training extends Model
         'certify',
         'date',
         'description',
+        'on_live',
+        'year',
+        'accomplished',
+        'training_order'
     ];
 
     public function users()
