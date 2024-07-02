@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Repository;
 
+use App\Events\LogUser;
 use App\Models\Concessionaire;
 use App\Models\TrainingUser;
 use App\Models\User;
@@ -28,7 +29,9 @@ class ConcessionaireAreaRepository
     {
         $save = TrainingUser::where('trainings_id', $training)->where('common_user_id', $user)->where('concessionaire_id', $concessionaire)->get()->first();
 
-        $save->presence = 1;
+        $save->presence = !$save->presence;
+
+        LogUser::dispatch($training, $user, $concessionaire);
 
         try{
             $save->save();
