@@ -78,7 +78,7 @@ class AccessController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'message' => $error
+                'message' => $error->getMessage()
             ], 500);
         }
     }
