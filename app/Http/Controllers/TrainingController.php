@@ -217,6 +217,28 @@ class TrainingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+    public function releaseSheet(Request $request)
+    {
+
+        // $usuarioID = $request->input('userID');
+        // $data = [];
+
+        try {
+
+            // Se não existe, cria um novo registro
+            Training::where('id', $request->input('trainingId'))->update([
+                "certify" => $request->input('certify'),
+
+            ]); 
+
+            return response()->json([
+                'data'   => 'Ficha liberada...',
+                'status' => 200
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 
     /**
      * Show the form for editing the specified resource.
