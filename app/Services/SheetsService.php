@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Http\Repository\SheetsRepository;
+use App\Models\TrainingUser;
 use Illuminate\Http\Request;
 
 class SheetsService
@@ -13,7 +14,13 @@ class SheetsService
     
     public function save(Request $request)
     {
-        $data = $this->sheetsRepository->create($request);
+        if($request->present){
+            $concessionaire = TrainingUser::where('common_user_id', $request->user)->where('trainings_id', $request->training)->get()->first();
+            
+            $data = $this->sheetsRepository->create($request, $concessionaire->concessionaire_id);
+        }else{
+            $data = $this->sheetsRepository->create($request);
+        }
 
         return $data;
     }

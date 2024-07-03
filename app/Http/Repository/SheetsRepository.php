@@ -13,7 +13,7 @@ class SheetsRepository
         protected Sheets $model
     ){}
 
-    public function create(Request $request)
+    public function create(Request $request, $concessionaire = false)
     {
         DB::beginTransaction();
         
@@ -29,6 +29,12 @@ class SheetsRepository
             ]);
 
             DB::commit();
+
+            if($concessionaire){
+                $presence = new ConcessionaireAreaRepository();
+
+                $presence->updatePresence($request->training, $request->user, $concessionaire);
+            }
 
             return $data;
         }catch(QueryException $error){
