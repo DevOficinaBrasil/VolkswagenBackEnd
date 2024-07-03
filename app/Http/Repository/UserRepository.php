@@ -34,20 +34,22 @@ class UserRepository implements UserRepositoryInterface
         return $record;
     }
 
-    public function update($user_DATA)
+    public function update($user_DATA, $login_ID, $addres_ID)
     {
         // error_log($user_DATA);
 
-        $record = $this->model->where('document', $user_DATA->document)
-            ->update([
-                'name'                => $user_DATA->name,
-                'email'               => $user_DATA->email,
-                'phone'               => $user_DATA->phone,
-                'gender'              => $user_DATA->gender,
-                'born_at'             => $user_DATA->born_at,
-                'document'            => $user_DATA->document,
-            ]
-        );
+        $record = $this->model->where('document', $user_DATA->document)->get()->first();
+
+        $record->name                = $user_DATA->name;
+        $record->email               = $user_DATA->email;
+        $record->phone               = $user_DATA->phone;
+        $record->gender              = $user_DATA->gender;
+        $record->born_at             = $user_DATA->born_at;
+        $record->document            = $user_DATA->document;
+        $record->user_login_id       = $login_ID;
+        $record->common_user_address = $addres_ID;
+
+        $record->save();
 
         // $id = $this->model->where('document', $user_DATA->document)->get()->first();
         
