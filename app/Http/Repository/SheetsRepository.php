@@ -40,7 +40,7 @@ class SheetsRepository
         }catch(QueryException $error){
             DB::rollBack();
 
-            return $error;
+            return $error->getMessage();
         }
     }
 
