@@ -24,7 +24,10 @@ Route::post('/signup',
     [AccessController::class, 'signup']
 )->middleware([ConvertBooleans::class, SanitizeInputs::class]);
 
-Route::get('/trainings', [TrainingController::class, 'index']);
+Route::middleware('throttle:60,1')->group(function () {
+
+    Route::get('/trainings', [TrainingController::class, 'index']);
+});
 
 Route::post('/getByCpf', [UserLegacyController::class, 'search']);
 
