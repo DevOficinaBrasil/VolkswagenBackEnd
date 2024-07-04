@@ -22,7 +22,7 @@ class SheetsController extends Controller
             return response()->json('Respostas salvas!', 200);
         }
 
-        return response()->json('erro ao salvar as resposta', 400);
+        return response()->json($data, 400);
     }
 
     /**
