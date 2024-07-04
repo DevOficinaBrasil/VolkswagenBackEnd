@@ -46,7 +46,7 @@ Route::middleware(JwtMiddleware::class)->group(function(){
     Route::get('/trainings/{id}', [TrainingController::class, 'exib']);
 
     Route::post('/registerSheet', [SheetsController::class, 'store']);
-    Route::post('/verify/sheet', [SheetsController::class, 'store']);
+    Route::get('/verify/sheet', [SheetsController::class, 'verify']);
 
     Route::prefix('admin')->group(function () {
         Route::apiResource('/trainings', AdminController::class);
