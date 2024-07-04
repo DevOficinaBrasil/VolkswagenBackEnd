@@ -137,27 +137,27 @@ class TrainingController extends Controller
         try {
 
             $result = DB::table('trainings as a')
-            ->selectRaw('
+                ->selectRaw('
                 a.*, 
                 MAX(CASE WHEN b.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS PreencheuFicha,
                 MAX(CASE WHEN c.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS Inscrito,
                 MAX(CASE WHEN d.TreinamentoParticipou IS NOT NULL THEN 1 ELSE 0 END) AS TreinamentoParticipou
             ')
-            ->leftJoin('general_sheet as b', function ($join) use ($usuarioID) {
-                $join->on('b.trainings_id', '=', 'a.id')
-                    ->where('b.common_user_id', '=', $usuarioID);
-            })
-            ->leftJoin('concessionaire_training_user as c', function ($join) use ($usuarioID) {
-                $join->on('c.trainings_id', '=', 'a.id')
-                    ->where('c.common_user_id', '=', $usuarioID);
-            })
-            ->leftJoin('common_user_log as d', function ($join) {
-                $join->on('d.Treinamento', '=', 'c.trainings_id');
-            })
-            ->groupBy('a.id')
-            ->get();
+                ->leftJoin('general_sheet as b', function ($join) use ($usuarioID) {
+                    $join->on('b.trainings_id', '=', 'a.id')
+                        ->where('b.common_user_id', '=', $usuarioID);
+                })
+                ->leftJoin('concessionaire_training_user as c', function ($join) use ($usuarioID) {
+                    $join->on('c.trainings_id', '=', 'a.id')
+                        ->where('c.common_user_id', '=', $usuarioID);
+                })
+                ->leftJoin('common_user_log as d', function ($join) {
+                    $join->on('d.Treinamento', '=', 'c.trainings_id');
+                })
+                ->groupBy('a.id')
+                ->get();
 
-        return response()->json($result);
+            return response()->json($result);
 
             return response()->json([
                 'data'   => $result,
@@ -167,14 +167,28 @@ class TrainingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
     public function putTrainingPresence(Request $request)
     {
 
         $usuarioID = $request->input('userID');
-        // $data = [];
+
 
         try {
 
+
+            $existingUser = TrainingUser::where('trainingID', $request->input('trainingID'))
+                ->where('usuarioID', $usuarioID)
+                ->first();
+
+            // Se não existe, cria um novo registro
+            if (!$existingUser) {
+                TrainingUser::create([
+                    'trainingID' => $request->input('trainingID'),
+                    'usuarioID' => $usuarioID,
+                    'campo_extra' => 0, // Substitua 'campo_extra' pelo campo que deseja definir como 0
+                ]);
+            }
 
             // Se não existe, cria um novo registro
             CommonUserLog::create([
@@ -193,9 +207,9 @@ class TrainingController extends Controller
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
+
     public function setTraininOnLive(Request $request)
     {
-
         // $usuarioID = $request->input('userID');
         // $data = [];
 
@@ -206,7 +220,7 @@ class TrainingController extends Controller
             Training::where('id', $request->input('trainingId'))->update([
                 "on_live" => $request->input('onLive'),
 
-            ]); 
+            ]);
 
 
             return response()->json([
@@ -229,7 +243,7 @@ class TrainingController extends Controller
             Training::where('id', $request->input('trainingId'))->update([
                 "certify" => $request->input('certify'),
 
-            ]); 
+            ]);
 
             return response()->json([
                 'data'   => 'Ficha liberada...',
