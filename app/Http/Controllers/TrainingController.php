@@ -175,18 +175,16 @@ class TrainingController extends Controller
 
 
         try {
-
-
-            $existingUser = TrainingUser::where('trainingID', $request->input('trainingID'))
-                ->where('usuarioID', $usuarioID)
+            $existingUser = TrainingUser::where('trainings_id', $request->input('trainingID'))
+                ->where('common_user_id', $usuarioID)
                 ->first();
 
             // Se não existe, cria um novo registro
             if (!$existingUser) {
                 TrainingUser::create([
-                    'trainingID' => $request->input('trainingID'),
-                    'usuarioID' => $usuarioID,
-                    'campo_extra' => 0, // Substitua 'campo_extra' pelo campo que deseja definir como 0
+                    'trainings_id' => $request->input('trainingID'),
+                    'common_user_id' => $usuarioID,
+                    'concessionaire_id' => 0,
                 ]);
             }
 
