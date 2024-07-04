@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccessController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AutoRepairController;
+use App\Http\Controllers\BannerController;
 use App\Http\Controllers\ConcessionaireAreaController;
 use App\Http\Controllers\ConcessionaireControler;
 use App\Http\Controllers\ConcessionaireResourceController;
@@ -42,6 +43,7 @@ Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getB
 Route::post('/putTrainingPresence', [TrainingController::class, 'putTrainingPresence']);
 Route::post('/setTraininOnLive', [TrainingController::class, 'setTraininOnLive']);
 Route::post('/releaseSheet', [TrainingController::class, 'releaseSheet']);
+Route::post('/createBannerData', [BannerController::class, 'createBannerData']);
 
 Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('users', UserController::class);
