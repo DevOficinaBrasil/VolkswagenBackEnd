@@ -18,6 +18,7 @@ use App\Http\Repository\AutoRepairRepository;
 use App\Interfaces\AutoRepairRepositoryInterface;
 use App\Models\AutoRepair;
 use App\Models\AutoRepairUSer;
+use App\Services\AccessService;
 use App\Services\EmailAdapterImplements;
 use App\Services\RdStationService;
 
@@ -61,6 +62,15 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(SinglePassService::class, function(){
             return new SinglePassService();
+        });
+
+        $this->app->bind('AccessService', function($app){
+            return new AccessService(
+                $app->make(AddressService::class),
+                $app->make(SinglePassService::class),
+                $app->make(UserRepositoryInterface::class),
+                $app->make(AutoRepairRepositoryInterface::class),
+            );
         });
     }
 
