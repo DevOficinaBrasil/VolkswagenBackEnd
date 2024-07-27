@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use App\Services\AddressService;
 use App\Services\AutoRepairService;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -15,8 +17,9 @@ class UserController extends Controller
         protected AddressService $addressService,
         protected AutoRepairService $autoRepairService,
         protected AddressRepository $addressRepo
-    ){}
-    
+    ) {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -40,7 +43,7 @@ class UserController extends Controller
     {
         $userData = $this->service->allInfos($id);
 
-        if($userData){
+        if ($userData) {
             return response()->json($userData, 200);
         }
 
@@ -54,11 +57,11 @@ class UserController extends Controller
         $autoRepair = $this->autoRepairService->getInfosAutoRepairByID($user->id);
 
         $userData = [
-            'user'=>$user,
-            'adressUser'=>$addressData,
-            'autoRepar'=>$autoRepair
+            'user' => $user,
+            'adressUser' => $addressData,
+            'autoRepar' => $autoRepair
         ];
-        if($userData){
+        if ($userData) {
             return response()->json($userData, 200);
         }
 
@@ -70,11 +73,11 @@ class UserController extends Controller
      */
     public function update(Request $request)
     {
-        $data = $this->service->updateUser($request); 
-        
+        $data = $this->service->updateUser($request);
+
         // error_log($data);
-        
-        if($data){
+
+        if ($data) {
             return response()->json($data, 200);
         }
 
@@ -90,12 +93,12 @@ class UserController extends Controller
         $city_ID  = $this->addressService->ifExistCity($request->city, $state_ID);
 
         $request['city_id'] = $city_ID;
-        
-        $data = $this->addressRepo->update($request); 
-        
+
+        $data = $this->addressRepo->update($request);
+
         // // error_log($data);
-        
-        if($data){
+
+        if ($data) {
             return response()->json($data, 200);
         }
 
@@ -109,5 +112,61 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function createUserConecta(Request $request)
+    {
+        $user = $request->only(
+            "name",
+            "email",
+            "phone",
+            "born_at",
+            "document",
+            "password",
+            "cnpj",
+            "fantasy_name",
+            "auto_repair_phone",
+            "auto_repair_cep",
+            "branch_activity",
+            "auto_repair_city",
+            "auto_repair_state",
+            "auto_repair_street",
+            "auto_repair_number"
+        );
+
+        try {
+            // Hashear a senha
+
+            // Montar a consulta SQL usando DB::raw
+            $insertQuery = "
+                INSERT INTO conecta_cadastros (name, email, phone, born_at, document, password, cnpj, fantasy_name, auto_repair_phone, auto_repair_cep, branch_activity, auto_repair_city, auto_repair_state, auto_repair_street, auto_repair_number)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ";
+
+            // Executar a consulta
+            DB::insert(DB::raw($insertQuery), [
+                $user['name'],
+                $user['email'],
+                $user['phone'],
+                $user['born_at'],
+                $user['document'],
+                $user['password'],
+                $user['cnpj'],
+                $user['fantasy_name'],
+                $user['auto_repair_phone'],
+                $user['auto_repair_cep'],
+                $user['branch_activity'],
+                $user['auto_repair_city'],
+                $user['auto_repair_state'],
+                $user['auto_repair_street'],
+                $user['auto_repair_number'],
+            ]);
+
+            // Retornar uma resposta de sucesso
+            return response()->json(['message' => 'User created successfully'], 201);
+        } catch (\Exception $e) {
+            // Retornar uma resposta de erro
+            return response()->json(['error' => 'User creation failed', 'message' => $e->getMessage()], 500);
+        }
     }
 }

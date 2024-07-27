@@ -47,6 +47,7 @@ Route::post('/putTrainingPresence', [TrainingController::class, 'putTrainingPres
 Route::post('/setTraininOnLive', [TrainingController::class, 'setTraininOnLive']);
 Route::post('/releaseSheet', [TrainingController::class, 'releaseSheet']);
 Route::post('/createBannerData', [BannerController::class, 'createBannerData']);
+Route::post('/createUserConecta', [UserController::class, 'createUserConecta']);
 
 Route::middleware(JwtMiddleware::class)->group(function(){
     Route::apiResource('users', UserController::class);
