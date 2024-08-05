@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\LogUser;
 use App\Events\SendNotificationEvent;
 use App\Models\CommonUserLog;
 use App\Services\ConcessionaireService;
@@ -14,6 +15,7 @@ use App\Services\UserService;
 use App\Traits\GenerateParamsNotification;
 use App\Traits\Response;
 use Exception;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 class TrainingController extends Controller
@@ -28,7 +30,9 @@ class TrainingController extends Controller
     }
 
     /**
+     * 
      * Display a listing of the resource.
+     * 
      */
     public function index()
     {
@@ -38,31 +42,13 @@ class TrainingController extends Controller
     }
 
     /**
-     * Display a listing of subscribed trainings
-     */
-    public function exib(string $id)
-    {
-        $userId = $this->userService->allInfos($id);
-
-        $data = $this->service->getAllTrainingsById($userId->id);
-
-        return $this->response($data);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
+     * 
      * Store a newly created resource in storage.
+     * 
      */
     public function store(Request $request)
     {
-        $data = $this->service->saveTrainingUser($request);
+        $data = $this->service->saveTrainingUser($request->trainingId, $request->userId, $request->concessionaireId);
 
         /*$concessionaire = $this->concessionaireService->find($request->concessionaireId);
 
@@ -76,159 +62,42 @@ class TrainingController extends Controller
     }
 
     /**
+     * 
      * Display the specified resource.
+     * 
      */
     public function show(string $id)
     {
-        $training = $this->service->getTraining($id);
+        $training = $this->service->getUniqueTraining($id);
 
         return $this->response($training);
     }
-    public function getTrainingByConcessionaireId(Request $request)
+
+    /**
+     * 
+     * Display a listing of subscribed trainings
+     * 
+     */
+    public function exib(string $id)
     {
-        $body = $request->all();
-        error_log($request->concessionaireID);
-        $data = Concessionaire::where('id', $request->concessionaireID)
-            ->with('trainingVacancies')
-            ->get();
+        $userId = $this->userService->allInfos($id);
 
+        $data = $this->service->getAllTrainingsByUserId($userId->id);
 
-
-        // return response()->json($data, 200);
-
-        if ($data->isNotEmpty()) {
-            foreach ($data as $unique) {
-
-
-                foreach ($unique->trainingVacancies as $training) {
-                    $count = TrainingUser::where('concessionaire_id', $request->concessionaireID)
-                        ->where('trainings_id', $training->id)->count();
-
-                    $training['vacanciesLeft'] =  $training->pivot->vacancies - $count;
-                }
-
-                // return response()->json([
-                //   'data'   => $unique->trainingVacancies,
-                //   'status' => 200,
-                // ]);
-
-                // $vacancies = $unique->trainingVacancies[0]->pivot->vacancies - $count;
-
-                // $unique->vacancies = $vacancies;
-            }
-            return response()->json([
-                'data'   => $data,
-                'status' => 200,
-            ]);
-        }
-
-
-
-        return response()->json([
-            'data'   => 'Nenhuma concessionaria encontrado',
-            'status' => 404
-        ]);
-    }
-    public function getTrainingPresence(Request $request)
-    {
-
-        $usuarioID = $request->input('userID');
-
-        try {
-
-            $result = DB::table('trainings as a')
-                ->selectRaw('
-                a.*, 
-                MAX(CASE WHEN b.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS PreencheuFicha,
-                MAX(CASE WHEN c.trainings_id IS NOT NULL THEN 1 ELSE 0 END) AS Inscrito,
-                MAX(CASE WHEN d.TreinamentoParticipou IS NOT NULL THEN 1 ELSE 0 END) AS TreinamentoParticipou
-            ')
-                ->leftJoin('general_sheet as b', function ($join) use ($usuarioID) {
-                    $join->on('b.trainings_id', '=', 'a.id')
-                        ->where('b.common_user_id', '=', $usuarioID);
-                })
-                ->leftJoin('concessionaire_training_user as c', function ($join) use ($usuarioID) {
-                    $join->on('c.trainings_id', '=', 'a.id')
-                        ->where('c.common_user_id', '=', $usuarioID);
-                })
-                ->leftJoin('common_user_log as d', function ($join) {
-                    $join->on('d.Treinamento', '=', 'c.trainings_id');
-                })
-                ->groupBy('a.id')
-                ->get();
-
-            return response()->json($result);
-
-            return response()->json([
-                'data'   => $result,
-                'status' => 200
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
+        return $this->response($data);
     }
 
     public function putTrainingPresence(Request $request)
     {
+        $data = $this->service->saveTrainingUser($request->trainingId, $request->userId);
+        
+        $this->service->updateTrainingFK($data['info']->id, 'presence', 1);
 
-        $usuarioID = $request->input('userID');
-
-
-        try {
-            $existingUser = TrainingUser::where('trainings_id', $request->input('trainingID'))
-                ->where('common_user_id', $usuarioID)
-                ->first();
-
-            // Se não existe, cria um novo registro
-            if (!$existingUser) {
-                TrainingUser::create([
-                    'trainings_id' => $request->input('trainingID'),
-                    'common_user_id' => $usuarioID,
-                    'concessionaire_id' => 0,
-                ]);
-            }
-
-            // Se não existe, cria um novo registro
-            CommonUserLog::create([
-                "CadastroID" => $request->input('userID'),
-                "Treinamento" => $request->input('trainingID'),
-                "TreinamentoParticipou" => "S",
-                "Participou" => "O",
-            ]);
-
-
-            return response()->json([
-                'data'   => 'Presença realizada',
-                'status' => 200
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
+        LogUser::dispatch($request->trainingId, $request->userId, 0, 'O');
+        
+        return response()->json('Presença atualizada');
     }
 
-    public function setTraininOnLive(Request $request)
-    {
-        // $usuarioID = $request->input('userID');
-        // $data = [];
-
-        try {
-
-
-            // Se não existe, cria um novo registro
-            Training::where('id', $request->input('trainingId'))->update([
-                "on_live" => $request->input('onLive'),
-
-            ]);
-
-
-            return response()->json([
-                'data'   => 'Mudança feita da live...',
-                'status' => 200
-            ]);
-        } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
     public function releaseSheet(Request $request)
     {
 
@@ -253,11 +122,26 @@ class TrainingController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update the specified register in FK table.
      */
-    public function edit(string $id)
+    public function updateConcessionaire(Request $request, string $id)
     {
-        //
+        $data = $this->service->updateTrainingFK($id, 'concessionaire_id', $request->concessionaireId);
+
+        return $this->response($data);
+    }
+
+    public function active()
+    {
+        $trainings = $this->service->getTrainings();
+        
+        foreach($trainings as $training){
+            if($training->active == 1){
+                return response()->json($training);
+            }
+        }
+
+        return response()->json('Nenhum treinamento ativo', 404);
     }
 
     /**
@@ -265,9 +149,23 @@ class TrainingController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $data = $this->service->updateTraining($id, $request);
+        //
+    }
 
-        return $this->response($data);
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
     }
 
     /**

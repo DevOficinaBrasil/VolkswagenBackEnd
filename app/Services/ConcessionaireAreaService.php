@@ -5,18 +5,19 @@ namespace App\Services;
 use App\Http\Repository\ConcessionaireAreaRepository;
 use App\Http\Repository\ConcessionaireRepository;
 use App\Http\Repository\TrainingRepository;
+use App\Http\Repository\VacanciesRepository;
 use App\Models\User;
 
 class ConcessionaireAreaService
 {
     public function __construct(
-        protected TrainingRepository $repository,
+        protected VacanciesRepository $repository,
         protected ConcessionaireAreaRepository $concessionaireAreaRepository,
     ){}
     
     public function trainings(string $id)
     {
-        $data = $this->repository->especifyConcessionaire($id);
+        $data = $this->repository->getConcessionaireTrainings($id);
 
         return $data;
     }
