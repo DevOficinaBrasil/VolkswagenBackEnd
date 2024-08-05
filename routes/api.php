@@ -65,7 +65,7 @@ Route::middleware(JwtMiddleware::class)->group(function(){
 
     Route::prefix('admin')->group(function () {
         Route::apiResource('/trainings', AdminController::class)->middleware(SanitizeInputs::class);
-        Route::get('/trainings/users/{id}', [AdminController::class, 'showWithUsers']);
+        Route::get('/training/users/{id}', [AdminController::class, 'showWithUsers']);
         Route::apiResource('/concessionaire', ConcessionaireResourceController::class);
         Route::apiResource('/vacancies', VacanciesController::class);
     });
