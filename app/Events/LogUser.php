@@ -18,7 +18,7 @@ class LogUser
     /**
      * Create a new event instance.
      */
-    public function __construct($training, $user, $concessionaire)
+    public function __construct($training, $user, $concessionaire, $presence = 'P')
     {
         $data = UserLog::firstOrCreate([
             'CadastroID'        => $user,
@@ -26,10 +26,10 @@ class LogUser
             'concessionaire_id' => $concessionaire,
         ],[
             'TreinamentoParticipou' => 'S',
-            'Participou'            => 'P',
+            'Participou'            => $presence,
         ]);
         
-        if(!$data->wasRecentlyCreated){
+        if(!$data->wasRecentlyCreated && $presence == 'P'){
             $data->TreinamentoParticipou = $data->TreinamentoParticipou == 'S' ? 'N' : 'S';
 
             $data->save();

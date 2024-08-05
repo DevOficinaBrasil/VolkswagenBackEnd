@@ -12,41 +12,46 @@ use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SheetsController;
 use App\Http\Controllers\UserLegacyController;
+use App\Http\Controllers\VacanciesController;
 use App\Http\Middleware\ConvertBooleans;
 use App\Http\Middleware\JwtMiddleware;
 use App\Http\Middleware\SanitizeInputs;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/getByCNPJ', [AutoRepairController::class, 'getByCNPJ'])->middleware(SanitizeInputs::class);
-
 Route::post('/signup', 
     [AccessController::class, 'signup']
 )->middleware([ConvertBooleans::class, SanitizeInputs::class]);
 
-Route::middleware('throttle:60,1')->group(function () {
-
-    Route::get('/trainings', [TrainingController::class, 'index']);
-});
-
 Route::post('/getByCpf', [UserLegacyController::class, 'search']);
+Route::post('/getByCNPJ', [AutoRepairController::class, 'getByCNPJ'])->middleware(SanitizeInputs::class);
 
 Route::post('/sendMail', [UserService::class, 'teste']);
 
 Route::get('/getAllUserInfo/{id}', [UserController::class, 'getAllUserInfo']);
 
 Route::post('/updateUser', [UserController::class, 'update']);
+
 Route::post('/updateAddress', [UserController::class, 'updateUserAddress']);
 Route::post('/getConcessionaireOnlyByAddress', [ConcessionaireControler::class, 'getConcessionaireOnlyByAddress']);
-Route::post('/getTrainingByConcessionaireId', [TrainingController::class, 'getTrainingByConcessionaireId']);
-Route::post('/getTrainingPresence', [TrainingController::class, 'getTrainingPresence']);
-// Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getConcessionaireByAddress']);
-Route::apiResource('training', TrainingController::class);
 Route::get('/getConcessionaireByAddress', [ConcessionaireControler::class, 'getByAddress']);
-Route::post('/putTrainingPresence', [TrainingController::class, 'putTrainingPresence']);
-Route::post('/setTraininOnLive', [TrainingController::class, 'setTraininOnLive']);
-Route::post('/releaseSheet', [TrainingController::class, 'releaseSheet']);
 Route::post('/createBannerData', [BannerController::class, 'createBannerData']);
+
+/**
+ * 
+ * Training
+ * 
+ */
+Route::middleware('throttle:60,1')->group(function () {
+    Route::get('/trainings', [TrainingController::class, 'index']);
+});
+Route::get('/training/active', [TrainingController::class, 'active']);
+
+/**
+ * 
+ * Conecta
+ * 
+ */
 Route::post('/createUserConecta', [UserController::class, 'createUserConecta']);
 
 Route::middleware(JwtMiddleware::class)->group(function(){
@@ -59,8 +64,10 @@ Route::middleware(JwtMiddleware::class)->group(function(){
     Route::get('/verify/sheet', [SheetsController::class, 'verify']);
 
     Route::prefix('admin')->group(function () {
-        Route::apiResource('/trainings', AdminController::class);
+        Route::apiResource('/trainings', AdminController::class)->middleware(SanitizeInputs::class);
+        Route::get('/trainings/users/{id}', [AdminController::class, 'showWithUsers']);
         Route::apiResource('/concessionaire', ConcessionaireResourceController::class);
+        Route::apiResource('/vacancies', VacanciesController::class);
     });
 
     Route::prefix('manager')->group(function () {
@@ -68,4 +75,20 @@ Route::middleware(JwtMiddleware::class)->group(function(){
         Route::get('/users', [ConcessionaireAreaController::class, 'getUserOnTraining']);
         Route::patch('/updatePresence', [ConcessionaireAreaController::class, 'updatePresence']);
     });
+
+    /**
+     * 
+     * Presence
+     * 
+     */
+    Route::post('/putTrainingPresence', [TrainingController::class, 'putTrainingPresence']);
+
+    /**
+     * 
+     * Training 
+     * 
+     */
+    Route::put('/updateConcessionaireTraining', [TrainingController::class, 'updateConcessionaire']);
+
+    Route::apiResource('training', TrainingController::class);
 });

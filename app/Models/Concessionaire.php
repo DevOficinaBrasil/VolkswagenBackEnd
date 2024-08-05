@@ -12,13 +12,6 @@ class Concessionaire extends Model
 
     protected $table = 'concessionaire';
 
-    protected $appends = ['vacancies'];
-
-    public function getVacanciesAttribute($value)
-    {
-        return isset($this->attributes['vacancies']) ? $this->attributes['vacancies'] : null;
-    }
-
     public function address()
     {
         return $this->belongsTo(Address::class, 'concessionaire_address');
