@@ -19,9 +19,10 @@ return new class extends Migration
             $table->longText('material');
             $table->longText('description');
             $table->date('date');
-            $table->string('certify');
+            $table->boolean('certify');
             $table->date('certify_date');
             $table->boolean('active');
+            $table->boolean('on_live');
             $table->timestamps();
         });
     }

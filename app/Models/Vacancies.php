@@ -10,4 +10,20 @@ class Vacancies extends Model
     use HasFactory;
 
     protected $table = "trainings_concessionaire";
+
+    protected $fillable = [
+        'concessionaire_id',
+        'training_id',
+        'vacancies',
+    ];
+
+    public function concessionaire()
+    {
+        return $this->belongsTo(Concessionaire::class, 'concessionaire_id');
+    }
+
+    public function trainings()
+    {
+        return $this->belongsTo(Training::class, 'training_id');
+    }
 }

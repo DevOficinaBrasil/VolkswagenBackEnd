@@ -19,6 +19,25 @@ class SanitizeInputs
         if($request->has('born_at') && !empty($request->born_at)){
             $request->merge(['born_at' => Carbon::createFromFormat('d/m/Y', $request->born_at)->format('Y-m-d')]);
         }
+
+        if($request->has('on_live') && !empty($request->on_live)){
+            $boolean = $request->on_live === 'true' ? 1 : 0;
+
+            $request->merge(['on_live' => $boolean]);
+        }
+
+        if($request->has('certify') && !empty($request->certify)){
+            $boolean = $request->certify === 'true' ? 1 : 0;
+
+            $request->merge(['certify' => $boolean]);
+        }
+
+        if($request->has('active') && !empty($request->active)){
+            $boolean = $request->active === 'true' ? 1 : 0;
+
+            $request->merge(['active' => $boolean]);
+        }
+
         /*
         if($request->has('cnpj')){
             $request->merge(['cnpj' => preg_replace('/\D/', '', $request->cnpj)]);
