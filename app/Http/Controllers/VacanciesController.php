@@ -35,6 +35,7 @@ class VacanciesController extends Controller
      */
     public function store(Request $request)
     {
+        return response()->json($request->concessionaire_id);
         $response = $this->service->addNewConcessionaireOnTraining($request->concessionaire_id, $request->training_id);
 
         return $this->response($response);
