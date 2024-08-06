@@ -12,6 +12,8 @@ class Vacancies extends Model
     protected $table = "trainings_concessionaire";
 
     protected $fillable = [
+        'concessionaire_id',
+        'training_id',
         'vacancies',
     ];
 
