@@ -15,8 +15,6 @@ class SheetsRepository
 
     public function create(Request $request, $concessionaire = false)
     {
-        DB::beginTransaction();
-        
         try{
             $data = $this->model->create([
                 'common_user_id'        => $request->user,
@@ -28,8 +26,6 @@ class SheetsRepository
                 'QuaisTemas'            => $request->suggestion,
             ]);
 
-            DB::commit();
-
             if($concessionaire){
                 $presence = new ConcessionaireAreaRepository();
 
@@ -38,8 +34,6 @@ class SheetsRepository
 
             return $data;
         }catch(QueryException $error){
-            DB::rollBack();
-
             return $error->getMessage();
         }
     }

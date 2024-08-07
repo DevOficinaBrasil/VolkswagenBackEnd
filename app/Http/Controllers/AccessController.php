@@ -57,16 +57,12 @@ class AccessController extends Controller
     {
         $context = [];
 
-        DB::beginTransaction();
-
         try{
             $this->handler->handle($request, $this->service, $context);
             
             $params = $this->registerUser($request);
     
             SendNotificationEvent::dispatch($request->email, $params);
-
-            DB::commit();
     
             return response()->json([
                 'token'   => $context['singlePassToken'],
@@ -75,8 +71,6 @@ class AccessController extends Controller
                 'message' => 'Usuário cadastrado com sucesso',
             ], 201);
         }catch(\Exception $error){
-            DB::rollBack();
-
             return response()->json([
                 'message' => $error->getMessage()
             ], 500);
