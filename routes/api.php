@@ -64,10 +64,11 @@ Route::middleware(JwtMiddleware::class)->group(function(){
     Route::get('/verify/sheet', [SheetsController::class, 'verify']);
 
     Route::prefix('admin')->group(function () {
-        Route::apiResource('/trainings', AdminController::class)->middleware(SanitizeInputs::class);
+        Route::apiResource('users', UserController::class);
+        Route::apiResource('trainings', AdminController::class)->middleware(SanitizeInputs::class);
         Route::get('/training/users/{id}', [AdminController::class, 'showWithUsers']);
-        Route::apiResource('/concessionaire', ConcessionaireResourceController::class);
-        Route::apiResource('/vacancies', VacanciesController::class);
+        Route::apiResource('concessionaire', ConcessionaireResourceController::class);
+        Route::apiResource('vacancies', VacanciesController::class);
     });
 
     Route::prefix('manager')->group(function () {

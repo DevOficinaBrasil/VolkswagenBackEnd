@@ -11,6 +11,13 @@ class UserService
         protected UserRepositoryInterface $userRepo,
     ){}
     
+    public function getAll()
+    {
+        $data = $this->userRepo->all();
+
+        return $data;
+    }
+    
     public function allInfos(string $id)
     {
         $data = $this->userRepo->find($id);
