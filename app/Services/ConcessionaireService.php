@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Repository\ConcessionaireRepository;
 use App\Models\TrainingUser;
+use Exception;
 use Illuminate\Http\Request;
 use RuntimeException;
 
@@ -53,17 +54,15 @@ class ConcessionaireService
         throw new RuntimeException('Estado e cidade são necessários');
     }
 
-    public function generatePassword($id)
+    public function generatePassword(string $name, string $email, string $DN)
     {
-        $infos = $this->find($id);
-        
         $singlePass = new SinglePassService();
 
         $data_SinglePass = [
-            'name'     => $infos->fantasy_name,
-            'email'    => $infos->email,
+            'name'     => $name,
+            'email'    => $email,
             'role'     => 'manager',
-            'password' => "volkswagen{$infos->DN}",
+            'password' => "volkswagen{$DN}",
         ];
         
         try{
@@ -71,17 +70,34 @@ class ConcessionaireService
         }catch(RuntimeException $error){
             return [
                 'message' => $error->getMessage(),
-                'status'  => 401,
+                'status'  => false,
             ]; 
         }
 
-        $infos->concessionaire_login_id = $response->user_id;
-
-        $infos->save();
-
         return [
-            'message'   => 'Senha criada com sucesso',
-            'status' => 200
+            'iD' => $response->user_id,
+            'status'  => true,
         ];
+    }
+
+    public function addNewConcessionaire(array $singlePass, array $address, Request $request)
+    {
+        if(!$singlePass['status'] || !$address['status']){
+            return throw new Exception('Erro ao adicionar');
+        }
+
+        $params = [
+            'CNPJ'                    => $request->cnpj,
+            'fantasy_name'            => $request->fantasy,
+            'manager_name'            => $request->manager,
+            'certify_name'            => $request->certify,
+            'email'                   => $request->email,
+            'phone'                   => $request->phone,
+            'DN'                      => $request->dn,
+            'concessionaire_login_id' => $singlePass['iD'],
+            'concessionaire_address'  => $address['iD'],
+        ];
+
+        $data = $this->concessionaireRepo->store($params);
     }
 }
