@@ -11,6 +11,13 @@ class UserRepository implements UserRepositoryInterface
         protected User $model
     ){}
     
+    public function all()
+    {
+        $data = $this->model->select(['name','document','email'])->paginate();
+
+        return $data;
+    }
+    
     public function find($id)
     {
         $data = $this->model->where('user_login_id', $id)->get()->first();

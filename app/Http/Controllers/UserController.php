@@ -25,7 +25,9 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
+        $users = $this->service->getAll();
+
+        return response()->json($users, 200);
     }
 
     /**
