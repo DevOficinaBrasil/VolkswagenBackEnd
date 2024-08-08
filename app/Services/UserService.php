@@ -18,6 +18,18 @@ class UserService
         return $data;
     }
     
+    public function searchUser(array $searchParams)
+    {
+        foreach($searchParams as $term => $content){
+            $column = $term;
+            $value  = $content;
+        }
+
+        $data = $this->userRepo->search($column, $value);
+
+        return $data;
+    }
+    
     public function allInfos(string $id)
     {
         $data = $this->userRepo->find($id);
