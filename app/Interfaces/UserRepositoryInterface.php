@@ -12,5 +12,5 @@ interface UserRepositoryInterface
 
     public function update($user_DATA, $login_ID, $addres_ID);
 
-    public function search($search, $argument);
+    public function search(string $search, string $argument);
 }

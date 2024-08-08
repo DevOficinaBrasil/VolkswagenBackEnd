@@ -63,7 +63,7 @@ class UserRepository implements UserRepositoryInterface
         return $record;
     }
 
-    public function search($search, $argument)
+    public function search(string $search, string $argument)
     {
         $data = $this->model->where($search, $argument)->get();
 

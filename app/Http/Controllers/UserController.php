@@ -87,6 +87,13 @@ class UserController extends Controller
         // return response()->json($request, 200);
     }
 
+    public function search(Request $request)
+    {
+        $response = $this->service->searchUser($request->all());
+
+        return response()->json($response, 200);
+    }
+
 
     public function updateUserAddress(Request $request)
     {

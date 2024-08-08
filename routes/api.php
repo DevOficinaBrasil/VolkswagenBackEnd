@@ -69,6 +69,10 @@ Route::middleware(JwtMiddleware::class)->group(function(){
         Route::get('/training/users/{id}', [AdminController::class, 'showWithUsers']);
         Route::apiResource('concessionaire', ConcessionaireResourceController::class);
         Route::apiResource('vacancies', VacanciesController::class);
+
+        Route::prefix('search')->group(function () {
+            Route::get('/users', [UserController::class, 'search']);
+        });
     });
 
     Route::prefix('manager')->group(function () {
