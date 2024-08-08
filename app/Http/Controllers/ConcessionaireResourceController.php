@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\AccessService;
 use App\Services\ConcessionaireService;
 use Illuminate\Http\Request;
 
 class ConcessionaireResourceController extends Controller
 {
     public function __construct(
-        protected ConcessionaireService $service
+        protected ConcessionaireService $service,
+        protected AccessService $accessService
     ){}
 
     /**
@@ -34,7 +36,37 @@ class ConcessionaireResourceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try{
+            $request->validate([
+                'cnpj'       => 'required|string|unique:App\Models\Concessionaire,CNPJ',
+                'fantasy'    => 'required|string',
+                'manager'    => 'required|string',
+                'certify'    => 'required|string',
+                'phone'      => 'required|string',
+                'dn'         => 'required|string',
+                'cep'        => 'required|string',
+                'state'      => 'required|string',
+                'city'       => 'required|string',
+                'street'     => 'required|string',
+                'complement' => 'required|string',
+                'number'     => 'required|string',
+                'email'      => 'required|email|unique:App\Models\Concessionaire,email',
+            ]);
+        }catch(\Exception $error){
+            return response()->json($error->getMessage(), 400);
+        }
+
+        $singlePass = $this->service->generatePassword($request->fantasy, $request->email, $request->dn);
+
+        $address = $this->accessService->createAddress($request);
+
+        try{
+            $newConcessionaire = $this->service->addNewConcessionaire($singlePass, $address, $request);
+        }catch(\Exception $error){
+            return response()->json($error->getMessage(), 400);
+        }
+
+        return response()->json('Concessionária adicionada');
     }
 
     /**

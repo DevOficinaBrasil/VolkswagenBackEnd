@@ -49,4 +49,11 @@ class ConcessionaireRepository
         
         return $data;
     }
+
+    public function store($params)
+    {
+        $data = $this->model->create($params);
+
+        return $data;
+    }
 }

@@ -12,6 +12,18 @@ class Concessionaire extends Model
 
     protected $table = 'concessionaire';
 
+    protected $fillable = [
+        'CNPJ',
+        'fantasy_name',
+        'manager_name',
+        'certify_name',
+        'email',
+        'phone',
+        'DN',
+        'concessionaire_login_id',
+        'concessionaire_address',
+    ];
+
     public function address()
     {
         return $this->belongsTo(Address::class, 'concessionaire_address');
