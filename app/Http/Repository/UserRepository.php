@@ -13,7 +13,7 @@ class UserRepository implements UserRepositoryInterface
     
     public function all()
     {
-        $data = $this->model->select(['name','document','email'])->paginate();
+        $data = $this->model->select(['name','document','email'])->orderByDesc('created_at')->paginate();
 
         return $data;
     }
